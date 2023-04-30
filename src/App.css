@@ -36,3 +36,179 @@
     transform: rotate(360deg);
   }
 }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, #5f27cd, #00a8ff);
+  padding: 1rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo {
+  width: 50px;
+  height: 50px;
+  margin-right: 0.5rem;
+}
+
+.navbar-name {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.navbar-links,
+.navbar-auth {
+  display: flex;
+}
+
+.navbar-button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  margin: 0 0.5rem;
+  cursor: pointer;
+}
+
+.navbar-button:hover {
+  opacity: 0.8;
+}
+
+.navbar-button.auth {
+  border: 1px solid #fff;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
+.navbar-button.auth:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.header-title {
+  font-size: 2.5rem;
+  color: #5f27cd;
+  margin-bottom: 1rem;
+}
+
+.header-blurb {
+  font-size: 1.2rem;
+  max-width: 800px;
+  margin-bottom: 2rem;
+}
+
+.header-button {
+  background: linear-gradient(to right, #5f27cd, #00a8ff);
+  color: #fff;
+  font-size: 1.2rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.header-button:hover {
+  opacity: 0.8;
+}
+
+.fa-rocket {
+  margin-right: 0.5rem;
+}
+
+/* Apply different animation durations for each button */
+.image-display-row {
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  padding: 2rem 0;
+  background-color: #f0f0f0;
+}
+
+.image-display-item {
+  display: inline-block;
+  width: 300px;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  margin-right: 1rem;
+  border-radius: 5px;
+  position: relative;
+}
+
+.image-display-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  border-radius: 5px;
+}
+.carousel-container {
+  position: relative;
+}
+
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel {
+  display: flex;
+  transition: transform 0.5s;
+}
+
+.carousel-button {
+  background: linear-gradient(to right, #5f27cd, #00a8ff);
+  color: #fff;
+  font-size: 1.2rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.carousel-button-prev {
+  left: 1rem;
+}
+
+.carousel-button-next {
+  right: 1rem;
+}
+
+.image-display-item {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.image-display-item.active {
+  opacity: 1;
+}

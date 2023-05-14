@@ -1,108 +1,108 @@
-import React, { useState, useEffect } from "react";
-import { Box, Button, CircularProgress, Grid, Typography } from "@mui/material";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { FormControl, MenuItem, Select } from "@mui/material";
-import { auth, db as firestore } from "../../../firebaseConfig";
+import React, { useState } from "react";
+import { Box, Button } from "@mui/material";
+
 function VideoEditor() {
-  useEffect(() => {
-    console.log("AUTH!");
-    if (auth.currentUser) {
-      console.log("in authy");
-      const unsubscribe = firestore
-        .collection("Projects")
-        .where("createdBy.email", "==", auth.currentUser.email)
-        .onSnapshot((snapshot) => {
-          console.log(JSON.stringify(snapshot.docs));
-          const fetchedProjects = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            data: doc.data(),
-          }));
-          console.log(JSON.stringify(fetchedProjects) + "QQQQQQQQQ");
-          setProjects(fetchedProjects);
+  const [video, setVideo] = useState(null);
+
+  const handleVideoUpload = (e) => {
+    setVideo(e.target.files[0]);
+  };
+
+  const handleVideoSubmit = async () => {
+    console.log("Submitting Video");
+    var reader = new FileReader();
+
+    if (video) {
+      const response = await fetch("https://api.thetavideoapi.com/upload", {
+        headers: {
+          "x-tva-sa-id": "srvacc_kuy73r8xffdt1ibdf5itjm2ky",
+          "x-tva-sa-secret": "tsf1kvu2pehfwk95mr4er8u319rkdvrg",
+        },
+        method: "POST",
+      });
+
+      const data = await response.json();
+
+      const id = data["body"]["uploads"][0]["id"];
+      const url = data["body"]["uploads"][0]["presigned_url"];
+      console.log("URL: " + url);
+
+      reader.readAsBinaryString(video);
+
+      reader.onload = async () => {
+        const video_binary = reader.result;
+
+        console.log("Uploading...");
+        const upload = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/octet-stream",
+          },
+          body: video_binary,
         });
 
-      return () => unsubscribe();
-    }
-  }, []);
-  const [step, setStep] = useState(0);
-  const [selectedProject, setSelectedProject] = useState("");
-  const [projects, setProjects] = useState([]);
-  const handleNext = () => {
-    if (step < 4) {
-      setStep(step + 1);
+        console.log("Finished uploading. Transcoding id: " + id);
+
+        const trans = await fetch("https://api.thetavideoapi.com/video", {
+          method: "POST",
+          headers: {
+            "x-tva-sa-id": "srvacc_kuy73r8xffdt1ibdf5itjm2ky",
+            "x-tva-sa-secret": "tsf1kvu2pehfwk95mr4er8u319rkdvrg",
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            "source_upload_id": id,
+            "playback_policy": "public",
+            "nft_collection": "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793"
+
+          }),
+        });
+
+        const res = await trans.json();
+        console.log("Finished transcoding " + JSON.stringify(res));
+      };
     }
   };
 
-  const handleBack = () => {
-    if (step > 0) {
-      setStep(step - 1);
+  const handleEditWithAI = () => {
+    if (video) {
+      console.log("Editing with AI...");
     }
   };
 
   return (
-    <Box>
-      {step === 0 && (
-        <Box mt={2}>
-          <Typography variant="h6">Choose Project</Typography>
-          <FormControl fullWidth variant="outlined" margin="normal">
-            <Select
-              value={selectedProject}
-              onChange={(event) => setSelectedProject(event.target.value)}
-            >
-              {projects.map((project) => (
-                <MenuItem key={project.id} value={project.id}>
-                  {project.data.projectName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+    >
+      <input
+        accept="video/*"
+        style={{ display: "none" }}
+        id="video-upload-button"
+        type="file"
+        onChange={handleVideoUpload}
+      />
+      <label htmlFor="video-upload-button">
+        <Button variant="contained" color="primary" component="span">
+          Upload Video
+        </Button>
+      </label>
+      {video && (
+        <Button
+          variant="contained"
+          onClick={handleVideoSubmit}
+          style={{ marginTop: "20px" }}
+        >
+          Submit Video
+        </Button>
       )}
-      <Box display="flex" justifyContent="center" alignItems="center" mb={4}>
-        {[0, 1, 2, 3, 4].map((item, index) => (
-          <Box key={index} display="flex" alignItems="center">
-            <CircularProgress
-              variant={step === item ? "indeterminate" : "determinate"}
-              value={100}
-              size={24}
-              thickness={4}
-            />
-            {index < 4 && (
-              <Box
-                width={32}
-                height={4}
-                bgcolor={step >= item ? "primary.main" : "grey.300"}
-                ml={1}
-                mr={1}
-              />
-            )}
-          </Box>
-        ))}
-      </Box>
-      <Box>
-        <Typography variant="h5">Page {step + 1}</Typography>
-      </Box>
-      <Box mt={4} display="flex" justifyContent="space-between">
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<NavigateBeforeIcon />}
-          onClick={handleBack}
-          disabled={step === 0}
-        >
-          Back
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          endIcon={<NavigateNextIcon />}
-          onClick={handleNext}
-          disabled={step === 4}
-        >
-          Next
-        </Button>
-      </Box>
+      <Button variant="contained" onClick={handleEditWithAI}>
+        Edit with AI
+      </Button>
     </Box>
   );
 }

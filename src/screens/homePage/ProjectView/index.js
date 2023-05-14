@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@mui/material"; // missing import
+import { Button } from "@mui/material";
 import { db, auth } from "../../../firebaseConfig";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
@@ -30,56 +30,74 @@ const ProjectView = () => {
   }, []);
 
   return (
-    <div style={{ textAlign: "center", paddingTop: "2rem" }}>
-      <h2 style={{ textAlign: "center" }}>Your Projects</h2>
-      {projects.length === 0 ? (
-        <>
-          <p>This place looks pretty empty,</p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            style={{
-              textDecoration: "underline",
-              border: "none",
-              backgroundColor: "transparent",
-              color: "blue",
-              cursor: "pointer",
-            }}
-          >
-            Create A Project?
-          </button>
-        </>
-      ) : (
-        <div>
-          {projects.map((project) => (
-            <Button
-              key={project.id}
-              variant="contained"
-              onClick={() =>
-                console.log(`Go to project ${project.projectName}`)
-              }
-            >
-              {project.projectName}
-            </Button>
-          ))}
-        </div>
-      )}
-      <CreateProjectModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-      <Fab
-        color="primary"
-        aria-label="add"
+    <div
+      style={{
+        flex: 1,
+        textAlign: "center",
+        paddingTop: "2rem",
+        background:
+          "linear-gradient(180deg, hsla(208, 67%, 81%, 1) 0%, hsla(301, 65%, 83%, 1) 100%)",
+      }}
+    >
+      <div
         style={{
-          position: "absolute",
-          bottom: "2rem",
-          right: "2rem",
-          background: "linear-gradient(45deg, #3f51b5 0%, #9c27b0 100%)",
+          flex: 1,
+          textAlign: "center",
+          paddingTop: "2rem",
+          background:
+            "linear-gradient(180deg, hsla(208, 67%, 81%, 1) 0%, hsla(301, 65%, 83%, 1) 100%)",
         }}
-        onClick={() => setIsModalOpen(true)}
       >
-        <AddIcon />
-      </Fab>
+        <h2 style={{ textAlign: "center" }}>Your Projects</h2>
+        {projects.length === 0 ? (
+          <>
+            <p>This place looks pretty empty,</p>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              style={{
+                textDecoration: "underline",
+                border: "none",
+                backgroundColor: "transparent",
+                color: "blue",
+                cursor: "pointer",
+              }}
+            >
+              Create A Project?
+            </button>
+          </>
+        ) : (
+          <div>
+            {projects.map((project) => (
+              <Button
+                key={project.id}
+                variant="contained"
+                onClick={() =>
+                  console.log(`Go to project ${project.projectName}`)
+                }
+              >
+                {project.projectName}
+              </Button>
+            ))}
+          </div>
+        )}
+        <CreateProjectModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+        <Fab
+          color="primary"
+          aria-label="add"
+          style={{
+            position: "absolute",
+            bottom: "2rem",
+            right: "2rem",
+            background: "linear-gradient(45deg, #3f51b5 0%, #9c27b0 100%)",
+          }}
+          onClick={() => setIsModalOpen(true)}
+        >
+          <AddIcon />
+        </Fab>
+      </div>
     </div>
   );
 };

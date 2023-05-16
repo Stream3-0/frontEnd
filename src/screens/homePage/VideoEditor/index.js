@@ -1,13 +1,72 @@
 import React, { useState } from "react";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
+import GameCard from "../../../components/gamecard";
+import { styled, keyframes } from "@mui/system";
+
+const steam = keyframes`
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+`;
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  position: "relative",
+  backgroundColor: "#000",
+  padding: theme.spacing(2),
+  maxHeight: "70vh",
+  overflowY: "auto",
+  boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.5)", // Add box-shadow to make component appear floating
+  "&:before": {
+    content: '""',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: -1,
+    background:
+      "linear-gradient(45deg, #fb0094, #0000ff, #00ff00,#ffff00, #ff0000, #fb0094, #0000ff, #00ff00,#ffff00, #ff0000)",
+    backgroundSize: "400%",
+    animation: `${steam} 20s linear infinite`,
+    transform: "scale(1.02)", // to cover the entire area
+  },
+}));
 
 function VideoEditor() {
   const [video, setVideo] = useState(null);
+  const [selectedGame, setSelectedGame] = useState(null);
+
+  const games = [
+    {
+      name: "Valorant",
+      description: "A competitive first-person shooter game",
+      image: "https://example.com/valorant.jpg",
+    },
+    {
+      name: "Albion Online",
+      description: "A fantasy sandbox MMORPG featuring a player-driven economy",
+      image: "https://example.com/albion.jpg",
+    },
+    {
+      name: "Minecraft",
+      description: "A game about placing blocks and going on adventures",
+      image: "https://example.com/minecraft.jpg",
+    },
+  ];
+
+  const handleGameButtonClick = (game) => {
+    setSelectedGame(game);
+  };
 
   const handleVideoUpload = (e) => {
     setVideo(e.target.files[0]);
   };
-
   const handleVideoSubmit = async () => {
     console.log("Submitting Video");
     var reader = new FileReader();
@@ -52,10 +111,9 @@ function VideoEditor() {
           },
 
           body: JSON.stringify({
-            "source_upload_id": id,
-            "playback_policy": "public",
-            "nft_collection": "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793"
-
+            source_upload_id: id,
+            playback_policy: "public",
+            nft_collection: "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793",
           }),
         });
 
@@ -79,30 +137,53 @@ function VideoEditor() {
       alignItems="center"
       height="100vh"
     >
-      <input
-        accept="video/*"
-        style={{ display: "none" }}
-        id="video-upload-button"
-        type="file"
-        onChange={handleVideoUpload}
-      />
-      <label htmlFor="video-upload-button">
-        <Button variant="contained" color="primary" component="span">
-          Upload Video
-        </Button>
-      </label>
-      {video && (
-        <Button
-          variant="contained"
-          onClick={handleVideoSubmit}
-          style={{ marginTop: "20px" }}
-        >
-          Submit Video
-        </Button>
+      {!selectedGame && (
+        <StyledBox>
+          <Grid
+            container
+            justifyContent="center"
+            alignItems="center"
+            spacing={2}
+          >
+            {games.map((game) => (
+              <Grid item xs={6} md={4} key={game.name}>
+                <GameCard
+                  game={game}
+                  onClick={() => handleGameButtonClick(game)}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </StyledBox>
       )}
-      <Button variant="contained" onClick={handleEditWithAI}>
-        Edit with AI
-      </Button>
+      {selectedGame && (
+        <>
+          <input
+            accept="video/*"
+            style={{ display: "none" }}
+            id="video-upload-button"
+            type="file"
+            onChange={handleVideoUpload}
+          />
+          <label htmlFor="video-upload-button">
+            <Button variant="contained" color="primary" component="span">
+              Upload Video
+            </Button>
+          </label>
+          {video && (
+            <Button
+              variant="contained"
+              onClick={handleVideoSubmit}
+              style={{ marginTop: "20px" }}
+            >
+              Submit Video
+            </Button>
+          )}
+          <Button variant="contained" onClick={handleEditWithAI}>
+            Edit with AI
+          </Button>
+        </>
+      )}
     </Box>
   );
 }

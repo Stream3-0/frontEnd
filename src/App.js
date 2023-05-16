@@ -12,8 +12,10 @@ import AccountSettings from "./screens/homePage/AccountSettings";
 import AICreator from "./screens/homePage/AiCreator";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 function App() {
+  const theme = createTheme();
   const [user, setUser] = useState(null);
   const customInit = useCallback(async (engine) => {
     await loadFull(engine);
@@ -84,24 +86,26 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="App">
-        <Navbar user={user} />
+    <ThemeProvider theme={theme}>
+      <Router>
+        <div className="App">
+          <Navbar user={user} />
 
-        {user ? (
-          <Routes>
-            <Route path="/projects" element={<ProjectView />} />
-            <Route path="/video-edit" element={<VideoEditor />} />
-            <Route path="/ai-creator" element={<AICreator />} />
-            <Route path="/account-settings" element={<AccountSettings />} />
-          </Routes>
-        ) : (
-          <div style={{ flex: 1 }}>
-            <Header />
-          </div>
-        )}
-      </div>
-    </Router>
+          {user ? (
+            <Routes>
+              <Route path="/projects" element={<ProjectView />} />
+              <Route path="/video-edit" element={<VideoEditor />} />
+              <Route path="/ai-creator" element={<AICreator />} />
+              <Route path="/account-settings" element={<AccountSettings />} />
+            </Routes>
+          ) : (
+            <div style={{ flex: 1 }}>
+              <Header />
+            </div>
+          )}
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 

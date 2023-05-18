@@ -67,15 +67,15 @@ function VideoEditor() {
   };
 
   const uploadToFirebase = async(video) => {
-
     return new Promise((resolve, reject) => {
+      console.log("Uploading " + video.name + " to Firebase...")
       const storage = getStorage();
       const fileRef = ref(storage, 'files/' + video.name);
       uploadBytesResumable(fileRef, video)
         .then((snapshot) => {
           console.log('Uploaded', snapshot.totalBytes, 'bytes.');
           console.log('File metadata:', snapshot.metadata);
-          // Let's get a download URL for the file.
+
           getDownloadURL(snapshot.ref).then((url) => {
             console.log('File available at', url);
             resolve(url)
@@ -87,7 +87,9 @@ function VideoEditor() {
     });
   }
 
-  const uploadToTheta = async() => {
+  const uploadToTheta = async(url) => {
+      console.log("Encoding URL " + url + " to Theta")
+
       const response = await fetch("https://api.thetavideoapi.com/video", {
         method: "POST",
 
@@ -98,7 +100,7 @@ function VideoEditor() {
           },
         
         body: JSON.stringify({
-            "source_uri": "https://storage.googleapis.com/musestore-678bd.appspot.com/clip.mp4", 
+            "source_uri": url,
             "playback_policy":"public",
             "nft_collection":"0x5d0004fe2e0ec6d002678c7fa01026cabde9e793"
         })
@@ -108,66 +110,51 @@ function VideoEditor() {
       return data
   };
 
+  const getEmbedURL = async(video_id) => {
+      await getThetaURL(video_id);
+      return "https://player.thetavideoapi.com/video/" + video_id;
+  };
+
+  const getVideoURL = async(video_id) => {
+    const data = await getThetaURL(video_id);
+    return data['body']['videos'][0]['playback_uri'];
+  };
+
+  const delay = (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  };
+  
+  const getThetaURL = async (video_id) => {
+    try {
+      const response = await fetch("https://api.thetavideoapi.com/video/" + video_id);
+      const data = await response.json();
+  
+      if (data['body']['videos'][0]['playback_uri'] !== null) {
+        console.log("Transcoding complete")
+        return data;
+      } else {
+        console.log("Waiting for Theta to transcode...")
+        await delay(3000);
+        return await getThetaURL(video_id);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+  
   const handleVideoUpload = (e) => {
     setVideo(e.target.files[0]);
   };
+
   const handleVideoSubmit = async () => {
     console.log("Submitting Video");
 
     if (video) {
-      const url = await uploadToFirebase(video)
-      console.log("Uploaded to Firebase with URL: " + url)
-      const response = await uploadToTheta(url)
-      console.log("Uploaded to theta which will be available at: https://media.thetavideoapi.com/" + response['body']['videos'][0]['id'])
-      // const response = await fetch("https://api.thetavideoapi.com/upload", {
-      //   headers: {
-      //     "x-tva-sa-id": "srvacc_kuy73r8xffdt1ibdf5itjm2ky",
-      //     "x-tva-sa-secret": "tsf1kvu2pehfwk95mr4er8u319rkdvrg",
-      //   },
-      //   method: "POST",
-      // });
-
-      // const data = await response.json();
-
-      // const id = data["body"]["uploads"][0]["id"];
-      // const url = data["body"]["uploads"][0]["presigned_url"];
-      // console.log("URL: " + url);
-
-      // reader.readAsBinaryString(video);
-
-      // reader.onload = async () => {
-      //   const video_binary = reader.result;
-
-      //   console.log("Uploading...");
-      //   const upload = await fetch(url, {
-      //     method: "PUT",
-      //     headers: {
-      //       "Content-Type": "application/octet-stream",
-      //     },
-      //     body: video_binary,
-      //   });
-
-      //   console.log("Finished uploading. Transcoding id: " + id);
-
-      //   const trans = await fetch("https://api.thetavideoapi.com/video", {
-      //     method: "POST",
-      //     headers: {
-      //       "x-tva-sa-id": "srvacc_kuy73r8xffdt1ibdf5itjm2ky",
-      //       "x-tva-sa-secret": "tsf1kvu2pehfwk95mr4er8u319rkdvrg",
-      //       "Content-Type": "application/json",
-      //     },
-
-        //   body: JSON.stringify({
-        //     "source_upload_id": id,
-        //     "playback_policy": "public",
-        //     "nft_collection": "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793"
-
-        //   }),
-        // });
-
-      //   const res = await trans.json();
-      //   console.log("Finished transcoding " + JSON.stringify(res));
-      // };
+      const firebase_url = await uploadToFirebase(video)
+      const response = await uploadToTheta(firebase_url)
+      const theta_url = await getEmbedURL(response['body']['videos'][0]['id'])
+      const theta_url2 = await getVideoURL(response['body']['videos'][0]['id'])
+      console.log("Encoded into Theta with URL: " + theta_url + " and: " + theta_url2)
     }
   };
 
@@ -176,6 +163,7 @@ function VideoEditor() {
       console.log("Editing with AI...");
     }
   };
+
 
   return (
     <Box

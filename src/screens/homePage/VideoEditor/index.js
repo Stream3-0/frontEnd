@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Button, Grid } from "@mui/material";
 import { storage } from "../../../firebaseConfig.js"
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL, getStorage } from "firebase/storage";
 import GameCard from "../../../components/gamecard";
 import { styled, keyframes } from "@mui/system";
 
@@ -69,21 +69,21 @@ function VideoEditor() {
   const uploadToFirebase = async(video) => {
 
     return new Promise((resolve, reject) => {
-      const storageRef = ref(storage, `/files/${video.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, video);
-  
-      uploadTask.on(
-        "state_changed",
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref)
-            .then((url) => {
-              resolve(url); // Resolve the promise with the URL
-            })
-            .catch((error) => {
-              reject(error); // Reject the promise if an error occurs
-            });
-        }
-      );
+      const storage = getStorage();
+      const fileRef = ref(storage, 'files/' + video.name);
+      uploadBytesResumable(fileRef, video)
+        .then((snapshot) => {
+          console.log('Uploaded', snapshot.totalBytes, 'bytes.');
+          console.log('File metadata:', snapshot.metadata);
+          // Let's get a download URL for the file.
+          getDownloadURL(snapshot.ref).then((url) => {
+            console.log('File available at', url);
+            resolve(url)
+          });
+        }).catch((error) => {
+          console.error('Upload failed', error);
+          reject(error)
+        });
     });
   }
 

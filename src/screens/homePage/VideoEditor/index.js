@@ -116,7 +116,7 @@ function VideoEditor() {
 
     if (video) {
       const url = await uploadToFirebase(video)
-      console.log(url)
+      console.log("Uploaded to Firebase with URL: " + url)
       const response = await uploadToTheta(url)
       console.log("Uploaded to theta which will be available at: https://media.thetavideoapi.com/" + response['body']['videos'][0]['id'])
       // const response = await fetch("https://api.thetavideoapi.com/upload", {
@@ -157,13 +157,13 @@ function VideoEditor() {
       //       "Content-Type": "application/json",
       //     },
 
-          body: JSON.stringify({
-            "source_upload_id": id,
-            "playback_policy": "public",
-            "nft_collection": "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793"
+        //   body: JSON.stringify({
+        //     "source_upload_id": id,
+        //     "playback_policy": "public",
+        //     "nft_collection": "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793"
 
-          }),
-        });
+        //   }),
+        // });
 
       //   const res = await trans.json();
       //   console.log("Finished transcoding " + JSON.stringify(res));

@@ -10,6 +10,7 @@ import ProjectView from "./screens/homePage/ProjectView";
 import VideoEditor from "./screens/homePage/VideoEditor";
 import AccountSettings from "./screens/homePage/AccountSettings";
 import AICreator from "./screens/homePage/AiCreator";
+import TestScreen from "./screens/homePage/test";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -97,6 +98,7 @@ function App() {
               <Route path="/video-edit" element={<VideoEditor />} />
               <Route path="/ai-creator" element={<AICreator />} />
               <Route path="/account-settings" element={<AccountSettings />} />
+              <Route path="/test" element={<TestScreen />} />
             </Routes>
           ) : (
             <div style={{ flex: 1 }}>

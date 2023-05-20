@@ -1,13 +1,23 @@
 import React, { useState } from "react";
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button, Grid, Slider } from "@mui/material";
 import { storage } from "../../../firebaseConfig.js"
 import { ref, uploadBytesResumable, getDownloadURL, getStorage } from "firebase/storage";
 import GameCard from "../../../components/gamecard";
 import ParticlesBackground2 from "../../../components/particlesBackground2";
+import { Timeline, TimelineEffect, TimelineRow } from '@xzdarcy/react-timeline-editor';
+
+
 function VideoEditor() {
   const [video, setVideo] = useState(null);
   const [selectedGame, setSelectedGame] = useState(null);
-
+  const [value, setValue] = useState([20, 50]);
+  function valuetext(value) {
+    return `${value}°C`;
+  }
+  const handleChange = (event, newValue) => {
+    console.log(newValue)
+    setValue(newValue);
+  };
   const games = [
     {
       name: "Valorant",
@@ -128,15 +138,56 @@ function VideoEditor() {
     }
   };
 
+  const mockData: TimelineRow[] = [{
+    id: "0",
+    actions: [
+      {
+        id: "action00",
+        start: 0,
+        end: 2,
+        effectId: "effect0",
+      },
+    ],
+  },
+  {
+    id: "1",
+    actions: [
+      {
+        id: "action10",
+        start: 1.5,
+        end: 5,
+        effectId: "effect1",
+      }
+    ],
+}]
+
+const mockEffect: Record<string, TimelineEffect> = {
+  effect0: {
+    id: "effect0",
+    name: "效果0",
+  },
+  effect1: {
+    id: "effect1",
+    name: "效果1",
+  },
+};
+
+  
+  function onChange(data) {
+    setFrame(data[0]['actions'][0]['start'])
+    console.log(frame);
+  }
+
+  function onReady(data) {
+    console.log(data)
+  }
 
   return (
     <div>
-      <ParticlesBackground2 />
+      {/* <ParticlesBackground2 /> */}
       <Box
         display="flex"
         flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
         height="100vh"
       >
         {!selectedGame && (
@@ -160,6 +211,11 @@ function VideoEditor() {
         )}
         {selectedGame && (
           <>
+          <Box
+            display="flex"
+            alignItems="flex-start"
+            flexDirection="column"
+          >
             <input
               accept="video/*"
               style={{ display: "none" }}
@@ -176,15 +232,35 @@ function VideoEditor() {
               <Button
                 variant="contained"
                 onClick={handleVideoSubmit}
-                style={{ marginTop: "20px" }}
+                style={{ marginTop: "20px"}}
               >
                 Submit Video
               </Button>
             )}
+
             <Button variant="contained" onClick={handleEditWithAI}>
               Edit with AI
             </Button>
-          </>
+            </Box>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              flexDirection='column'
+            >
+              <iframe width="560" height="315" src={'https://www.youtube.com/embed/ORMx45xqWkA?start=' + Math.round(value[0]) + "&end=" + Math.round(value[1])} ></iframe>
+              <Slider
+              style={{width: 500}}
+  getAriaLabel={() => 'Temperature range'}
+  value={value}
+  onChange={handleChange}
+  valueLabelDisplay="auto"
+  getAriaValueText={valuetext}
+      />
+            </Box>
+           
+           </>
+          
         )}
       </Box>
     </div>

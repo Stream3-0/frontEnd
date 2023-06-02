@@ -86,6 +86,7 @@ const Modal = ({ closeModal }) => {
         const ref = storage
           .ref()
           .child(`additionalFilters/${gameInfo.GameName}_${idx}`);
+          
         const snapshot = await ref.put(filter.DetectionImage);
         const DetectionImageURL = await snapshot.ref.getDownloadURL();
         return {

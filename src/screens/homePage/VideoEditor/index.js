@@ -17,10 +17,12 @@ import {
   TextField,
   Typography,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import { useRef } from "react";
 import { db } from "../../../firebaseConfig.js";
 import { Search } from "@mui/icons-material";
+
 import { collection, getDocs } from "firebase/firestore";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ReactPlayer from "react-player";
@@ -45,6 +47,7 @@ function VideoEditor() {
     [70, 105],
     [135, 160],
   ];
+  const [uploading, setUploading] = useState(false);
   const [combinedVideo, setCombinedVideo] = useState("");
   const [editors, setEditors] = useState([]);
   const [selectedEditor, setSelectedEditor] = useState(null);
@@ -100,6 +103,26 @@ function VideoEditor() {
       "https://www.youtube.com/embed/ORMx45xqWkA?start=" + start + "&end=" + end
     );
   };
+  const getThetaURL = async (video_id) => {
+    try {
+      const response = await fetch(
+        "https://api.thetavideoapi.com/video/" + video_id
+      );
+      const data = await response.json();
+      i;
+      if (data["body"]["videos"][0]["playback_uri"] !== null) {
+        console.log("Transcoding complete");
+        return data;
+      } else {
+        console.log("Waiting for Theta to transcode...");
+        await delay(3000);
+        return await getThetaURL(video_id);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const getEmbedURL = async (video_id) => {
     await getThetaURL(video_id);
     return "https://player.thetavideoapi.com/video/" + video_id;
@@ -155,7 +178,27 @@ function VideoEditor() {
   const handleMouseDown = useCallback(() => {
     setIsDraggingTrim(true);
   }, []);
-
+  const uploadToTheta = async (url) => {
+    console.log("Encoding URL " + url + " to Theta");
+    const response = await fetch("https://api.thetavideoapi.com/video", {
+      method: "POST",
+      headers: {
+        "x-tva-sa-id": "srvacc_kuy73r8xffdt1ibdf5itjm2ky",
+        "x-tva-sa-secret": "tsf1kvu2pehfwk95mr4er8u319rkdvrg",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        source_uri: url,
+        playback_policy: "public",
+        nft_collection: "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793",
+      }),
+    });
+    const data = await response.json();
+    console.log(data + "HERE IS THE DATA!!");
+    // Store the timestamps
+    setTimestamps(data);
+    return data;
+  };
   const handleMouseUp = useCallback(() => {
     setIsDraggingTrim(false);
     videoPlayer.current.seekTo(trimSeconds[0]);
@@ -406,7 +449,16 @@ function VideoEditor() {
   const handleButtonClick = async () => {
     try {
       if (videoFile) {
-        const videoUrl = await uploadToFirebase(videoFile);
+        setUploading(true);
+        // Upload the video file to Firebase first
+        const firebase_url = await uploadToFirebase(videoFile);
+
+        // Use the uploadToTheta function to get the video processed and uploaded to Theta
+        const theta_data = await uploadToTheta(firebase_url);
+
+        const videoUrl = await getEmbedURL(
+          theta_data["body"]["videos"][0]["id"]
+        );
         const videoName = videoFile.name;
 
         const editorTimestampsPromises = Object.values(
@@ -440,8 +492,11 @@ function VideoEditor() {
       }
     } catch (error) {
       console.error("Error fetching timestamps:", error);
+    } finally {
+      setUploading(false);
     }
   };
+
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -657,20 +712,43 @@ function VideoEditor() {
             flexDirection="column"
             alignItems="center"
           >
-            <Button
-              variant="contained"
-              color="primary"
-              component="label"
-              sx={{ mb: 2 }}
+            <Box
+              mt={4}
+              mb={2}
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
             >
-              Upload Video
-              <input
-                type="file"
-                hidden
-                onChange={handleUploadVideo}
-                accept="video/*"
-              />
-            </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                component="label"
+                sx={{ mb: 2 }}
+              >
+                Upload Video
+                <input
+                  type="file"
+                  hidden
+                  onChange={handleUploadVideo}
+                  accept="video/*"
+                />
+              </Button>
+
+              {uploading ? (
+                <CircularProgress />
+              ) : (
+                <ReactPlayer url={videoFile} />
+              )}
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleButtonClick}
+                sx={{ mt: 2 }}
+              >
+                Edit
+              </Button>
+            </Box>
 
             <ReactPlayer url={videoFile} />
             <Button

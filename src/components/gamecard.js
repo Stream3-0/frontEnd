@@ -59,7 +59,7 @@ function GameCard({ game, onClick }) {
           <CardMedia
             component="img"
             height="140"
-            image={game.image || "https://via.placeholder.com/150"} // fallback image
+            image={game.image || "https://via.placeholder.com/150"}
             alt={game.name}
           />
           <CardContent>

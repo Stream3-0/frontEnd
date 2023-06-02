@@ -10,17 +10,17 @@ export default function PageFour() {
   const [uploadedImageURL, setUploadedImageURL] = useState(null);
 
   useEffect(() => {
-    // Fetch the latest uploaded image URL from Firestore
+   
     const fetchImage = async () => {
       const imagesRef = db.collection("images");
       const snapshot = await imagesRef
         .orderBy("timestamp", "desc")
         .limit(1)
         .get();
-      console.log("Snapshot:", snapshot); // Add this line
+      console.log("Snapshot:", snapshot);  
       if (!snapshot.empty) {
         const doc = snapshot.docs[0];
-        console.log("Doc data:", doc.data()); // Add this line
+        console.log("Doc data:", doc.data());
         setUploadedImageURL(doc.data().url);
       }
     };
@@ -32,27 +32,27 @@ export default function PageFour() {
     const file = event.target.files[0];
     if (file) {
       try {
-        // Upload the file to firebase storage
+        
         const storageRef = storage.ref();
         const fileRef = storageRef.child(file.name);
-        console.log("Uploading file:", file.name); // Add this line
+        console.log("Uploading file:", file.name); 
         await fileRef.put(file);
 
-        // Get the download URL
+        
         const downloadURL = await fileRef.getDownloadURL();
-        console.log("Download URL:", downloadURL); // Add this line
+        console.log("Download URL:", downloadURL); 
 
-        // Set the state
+       
         setBackgroundImage(downloadURL);
       } catch (error) {
-        // Log the error to the console
+       
         console.error("Error uploading file:", error);
       }
     }
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("backgroundImage:", backgroundImage); // Add this line
+    console.log("backgroundImage:", backgroundImage);
     console.log(gameName, gameDescription, backgroundImage, uploadedImageURL);
     if (
       !gameName ||
@@ -64,11 +64,11 @@ export default function PageFour() {
       return;
     }
 
-    // Create a new document with the image URL and other data
+   
     await db.collection("projects").add({
       gameName,
       gameDescription,
-      backgroundImage, // this is now a download URL from Firebase storage
+      backgroundImage, 
       uploadedImage: uploadedImageURL,
     });
   };

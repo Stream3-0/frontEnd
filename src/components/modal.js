@@ -34,7 +34,7 @@ const LoginSignupModal = ({ isOpen, onClose }) => {
         const { user } = userCredential;
         await user.updateProfile({ displayName: name });
 
-        // Create a document with the user's UID in the 'users' collection
+       
         await db.collection("users").doc(user.uid).set({
           name: name,
           email: email,

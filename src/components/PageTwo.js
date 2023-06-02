@@ -1,4 +1,4 @@
-// pages/CombinedPage.js
+
 import React from "react";
 
 const keyframes = `@-webkit-keyframes gradient {
@@ -47,7 +47,7 @@ export default function PageTwo() {
         <p style={{ color: "white", fontSize: "18px" }}>
           Upload an image of your game and select a screenshot of a kill
           indication, like a skull icon or something that pops up to show visual
-          indication.
+          indication. 
         </p>
       </div>
     </>

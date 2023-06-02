@@ -38,7 +38,7 @@ const Navbar = ({ user }) => {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <DrawerComponent />
+        {user && <DrawerComponent />}
         <span className="navbar-name">AutoEdit</span>
         <img src="/path/to/your/logo" alt="Logo" className="navbar-logo" />
       </div>

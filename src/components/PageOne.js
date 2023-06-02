@@ -1,4 +1,4 @@
-// pages/PageOne.js
+
 import React from "react";
 
 export default function PageOne() {

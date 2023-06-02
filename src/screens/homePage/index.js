@@ -68,10 +68,6 @@ export default function DrawerComponent() {
               icon: <AccountSettingsIcon />,
               link: "/account-settings",
             },
-            {
-              text: "Test",
-              link: "/test",
-            },
           ].map((item, index) => (
             <ListItem
               button

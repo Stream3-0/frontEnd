@@ -305,3 +305,23 @@ button[type="submit"] {
 .project-view-container button:hover {
   color: #9c27b0;
 }
+@keyframes steam {
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+.card-container {
+  background-color: #1a1a1d;
+  border: 2px solid #6c63ff;
+  box-shadow: 0 0 10px #6c63ff, 0 0 10px #6c63ff;
+}
+
+.search-white-icon {
+  color: #fff;
+}

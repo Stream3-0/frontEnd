@@ -1,49 +1,49 @@
-import React, { useState } from "react";
-import { auth } from "../../../firebaseConfig";
+import React, { useState, useEffect } from "react";
+import { auth, db } from "../../../firebaseConfig";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import { animated, useSpring } from "react-spring";
-
-const AnimatedBox = animated(Box);
 
 const AccountSettings = () => {
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [password, setPassword] = useState("");
 
-  const springProps = useSpring({
-    from: {
-      background: "linear-gradient(45deg, #3f51b5 0%, #9c27b0 100%)",
-    },
-    to: async (next) => {
-      while (1) {
-        await next({
-          background: "linear-gradient(135deg, #3f51b5 0%, #9c27b0 100%)",
-        });
-        await next({
-          background: "linear-gradient(45deg, #3f51b5 0%, #9c27b0 100%)",
-        });
-      }
-    },
-  });
+  useEffect(() => {
+    if (auth.currentUser) {
+      setEmail(auth.currentUser.email);
+      setDisplayName(auth.currentUser.displayName);
+    }
+  }, []);
 
   const handleUpdate = async () => {
-    // Update code...
+    try {
+      if (email) {
+        await auth.currentUser.updateEmail(email);
+      }
+      if (displayName) {
+        await auth.currentUser.updateProfile({ displayName });
+        await db.collection('users').doc(auth.currentUser.uid).update({ displayName });
+      }
+      alert("Settings updated successfully.");
+    } catch (error) {
+      alert("Failed to update settings: " + error.message);
+    }
   };
 
   return (
-    <AnimatedBox
+    <Box
       style={{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
+        paddingTop: "3rem",
         padding: "2rem",
-        borderRadius: "1rem",
+        borderRadius: "0",
+        backgroundColor: "#1a1a1d",
         color: "#fff",
-        ...springProps,
+        overflow: "hidden",
       }}
     >
       <Box
@@ -65,37 +65,38 @@ const AccountSettings = () => {
             maxWidth: "400px",
           }}
         >
+          <label>Display Name</label>
           <TextField
-            label="Display Name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             variant="filled"
-            style={{ background: "#fff", borderRadius: "5px" }}
+            style={{
+              background: "#fff",
+              borderRadius: "5px",
+              padding: "0.5rem",
+            }}
           />
+            <label>Email</label>
           <TextField
-            label="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             variant="filled"
-            style={{ background: "#fff", borderRadius: "5px" }}
-          />
-          <TextField
-            label="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            variant="filled"
-            style={{ background: "#fff", borderRadius: "5px" }}
+            style={{ background: "#fff", borderRadius: "5px", padding: "0.5rem" }}
           />
           <Button
-            style={{ backgroundColor: "#fff", color: "#3f51b5" }}
+            style={{
+              backgroundColor: "#fff",
+              color: "#1a1a1d",
+              fontWeight: "bold",
+              marginTop: "1rem",
+            }}
             onClick={handleUpdate}
           >
             Update Settings
           </Button>
         </form>
       </Box>
-    </AnimatedBox>
+    </Box>
   );
 };
 

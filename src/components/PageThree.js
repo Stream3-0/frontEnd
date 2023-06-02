@@ -10,18 +10,18 @@ export default function PageThree() {
     const file = event.target.files[0];
     if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
       try {
-        // Upload the file to firebase storage
+      
         const storageRef = storage.ref();
         const fileRef = storageRef.child(file.name);
         await fileRef.put(file);
 
-        // Get the download URL and save it to Firestore
+       
         const downloadURL = await fileRef.getDownloadURL();
         await db.collection("images").add({ url: downloadURL });
 
         setUploadedFile(downloadURL);
       } catch (error) {
-        // Log the error to the console
+    
         console.error("Error uploading file:", error);
       }
     }
@@ -39,7 +39,8 @@ export default function PageThree() {
     >
       <h1 style={{ color: "white" }}>Image Upload</h1>
       <p style={{ color: "white", textAlign: "center" }}>
-        Upload an image that shows a visual indicator of a kill.
+        Upload an image that shows a visual indicator of a kill. A good example
+        would be the valorant skull icon that pops up whenever you get a kill.
       </p>
       <input
         type="file"
